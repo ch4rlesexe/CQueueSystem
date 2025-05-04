@@ -1,0 +1,105 @@
+# ============================================
+#        CQueueSystem Configuration
+# ============================================
+
+# This configuration file controls all aspects of the queue-based auto-start
+# and auto-stop system for Minecraft servers managed by a Pterodactyl panel.
+# It works on BungeeCord (or Velocity with adaptation) to manage queues and player flow.
+
+# ========================
+# Command customization
+# ========================
+commands:
+  join:
+    name: "queue"           # The primary command players use to join/leave queues (/queue)
+    aliases: ["q"]          # Optional aliases (e.g., /q)
+
+  admin:
+    name: "queueadmin"      # Admin-only command for config reload
+    aliases: ["qa", "qsadmin"]
+
+
+# ==================================
+# Pterodactyl server definitions
+# ==================================
+# These define the servers that can be dynamically started/stopped by the plugin.
+# Each key must match a registered BungeeCord server name.
+
+# Required Fields:
+#   panelUrl        – Your Pterodactyl panel's base URL (no trailing slash)
+#   apiKey          – Your account's Client API key with "Bearer " prefix
+#   serverId        – UUID of the Pterodactyl server (visible in the panel URL)
+#   shutdownTimeout – When to automatically stop the server if empty:
+#                      -1 = never shut down automatically
+#                       0 = shut down immediately when all players leave
+#                      >0 = shut down after N minutes of no players
+
+servers:
+  minigame-01:
+    panelUrl:        "https://panel.example.com"
+    apiKey:          "Bearer <YOUR_API_KEY>"
+    serverId:        "uuid-01"
+    shutdownTimeout: 10
+
+  minigame-02:
+    panelUrl:        "https://panel.example.com"
+    apiKey:          "Bearer <YOUR_API_KEY>"
+    serverId:        "uuid-02"
+    shutdownTimeout: 10
+
+  minigame-03:
+    panelUrl:        "https://panel.example.com"
+    apiKey:          "Bearer <YOUR_API_KEY>"
+    serverId:        "uuid-03"
+    shutdownTimeout: 10
+
+
+# ==========================
+# Queue system definitions
+# ==========================
+# Each queue can either point to:
+#   a) one specific server (single-server mode), OR
+#   b) a pool of servers (pool mode)
+
+# Common Fields:
+#   threshold        – Minimum players required in queue to start the server
+#   checkInterval    – Polling frequency (in seconds) for checking server availability
+#   shutdownTimeout  – Optional override for server’s shutdown timeout
+#   messages         – Chat messages shown to players
+#   forceQueue       – If true, even if a server is running, new players are placed in queue
+#                      rather than joining directly (used for load-control)
+
+queues:
+
+  # ───────────────────────────────────
+  # Queue for a single server: "lobby"
+  # ───────────────────────────────────
+  lobby:
+    server:          "lobby"           # Server to send players to
+    threshold:       1                 # Start the server immediately after 1 person queues
+    checkInterval:   3                 # Check every 3 seconds for server to become joinable
+    shutdownTimeout: 10                # Auto-stop after 10 minutes of being empty
+    forceQueue:      false             # Allow direct joining if server is already running
+    messages:
+      queued:     "&eYou are queued for &alobby&e."
+      starting:   "&aStarting lobby..."
+      connecting: "&aJoining &6{server}&a now!"
+      leave:      "&cYou have left the queue &6{queue}&c."
+
+  # ────────────────────────────────────────
+  # Queue for a pool of servers: "minigames"
+  # ────────────────────────────────────────
+  minigames:
+    servers:
+      - "minigame-01"
+      - "minigame-02"
+      - "minigame-03"
+    threshold:       5                 # Wait until 5 players are queued to start next server
+    checkInterval:   3                 # Poll every 3 seconds for server readiness
+    shutdownTimeout: 10                # Servers in the pool shut down 10 minutes after empty
+    forceQueue:      true              # Always use the queue; no direct joins even if online
+    messages:
+      queued:     "&eQueued for &6{queue}&e ({size}/{threshold})"
+      starting:   "&aStarting &6{server}&a..."
+      connecting: "&aJoining &6{server}&a now!"
+      leave:      "&cYou have left the queue &6{queue}&c."

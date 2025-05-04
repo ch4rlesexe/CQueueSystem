@@ -1,0 +1,23 @@
+name: CQueueSystem
+main: org.ch4rlesexe.cqueuesystem.CQueueSystem
+version: '1.0-SNAPSHOT'
+author: ch4rlesexe
+
+commands:
+  queue:
+    permission: cqueuesystem.join
+    description: "Join or leave a queue"
+    usage: /queue <join|leave> [queueName]
+    aliases: [q]
+
+  queueadmin:
+    permission: cqueuesystem.admin
+    description: "Admin commands for CQueueSystem"
+    usage: /queueadmin reload
+    aliases: [qa, qsadmin]
+
+permissions:
+  cqueuesystem.join:
+    default: true
+  cqueuesystem.admin:
+    default: op

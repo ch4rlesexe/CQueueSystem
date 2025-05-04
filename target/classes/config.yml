@@ -1,0 +1,87 @@
+# ========================
+# CQueueSystem Configuration
+# ========================
+
+# ------------------------
+# Command customization
+# ------------------------
+commands:
+  join:
+    name: "queue"         # Base command to join or leave queues
+    aliases: ["q"]        # Shortcut aliases for /queue
+  admin:
+    name: "queueadmin"    # Admin command to reload the plugin’s config at runtime
+    aliases: ["qa", "qsadmin"]
+
+# ------------------------
+# Pterodactyl server definitions
+# ------------------------
+# Define each Pterodactyl‑managed server your proxy can start/stop.
+# Key:      the internal Bungee server name
+# panelUrl: your panel’s URL (no trailing slash)
+# apiKey:   your Client API key (Account → API Credentials), prefixed with "Bearer "
+# serverId: the server’s UUID from the panel
+# shutdownTimeout:
+#    -1 = never auto‑stop
+#     0 = stop immediately when empty
+#    >0 = minutes of emptiness before stopping
+servers:
+  minigame-01:
+    panelUrl:        "https://panel.example.com"
+    apiKey:          "Bearer <YOUR_API_KEY>"
+    serverId:        "uuid-01"
+    shutdownTimeout: 10
+
+  minigame-02:
+    panelUrl:        "https://panel.example.com"
+    apiKey:          "Bearer <YOUR_API_KEY>"
+    serverId:        "uuid-02"
+    shutdownTimeout: 10
+
+  minigame-03:
+    panelUrl:        "https://panel.example.com"
+    apiKey:          "Bearer <YOUR_API_KEY>"
+    serverId:        "uuid-03"
+    shutdownTimeout: 10
+
+# ------------------------
+# Queue definitions
+# ------------------------
+# Define the queues players can join.
+# • Single‑server mode: specify `server: "<name>"`
+# • Pool‑mode      : specify `servers: [ ... ]`
+# threshold:      how many players must queue before starting
+# checkInterval:  seconds between pinging the server to see if it’s up
+# shutdownTimeout: *optional* minutes before auto‑stop when server is empty
+# messages:       customize chat feedback (use & color codes)
+queues:
+  # ──────────────────────────────
+  # Single‑server queue: "lobby"
+  # ──────────────────────────────
+  lobby:
+    server:          "lobby"     # Bungee server to forward to
+    threshold:       1           # start immediately on first join
+    checkInterval:   3           # poll interval in seconds
+    shutdownTimeout: 10          # minutes before auto‑stop when empty
+    messages:
+      queued:     "&eYou are queued for &alobby&e."
+      starting:   "&aStarting lobby..."
+      connecting: "&aJoining &6{server}&a now!"
+      leave:      "&cYou have left the queue &6{queue}&c."
+
+  # ──────────────────────────────
+  # Pool‑of‑servers queue: "minigames"
+  # ──────────────────────────────
+  minigames:
+    servers:
+      - "minigame-01"
+      - "minigame-02"
+      - "minigame-03"
+    threshold:       5           # wait for 5 players before starting next free server
+    checkInterval:   3           # poll interval in seconds
+    shutdownTimeout: 10          # minutes before auto‑stop when empty
+    messages:
+      queued:     "&eQueued for &6{queue}&e ({size}/{threshold})"
+      starting:   "&aStarting &6{server}&a..."
+      connecting: "&aJoining &6{server}&a now!"
+      leave:      "&cYou have left the queue &6{queue}&c."
